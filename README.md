@@ -10,6 +10,7 @@ This repository contains the R objects and workflows used to estimate deltafCO�
 ## Key Features
 - pCO2GalicIA model is a machine‑learning ensemble approach that integrates three different algorithms: Support Vector Regression (SVR), Extreme Gradient Boost (XGBoost) and Random Forest (RF).
 - The file "to_be_named.R" is a reproducible workflow example to estimate deltafCO₂ for a set of input values. The required input variables, besides date and location, are sea surface temperature, sea surface salinity, chlorophyll and upwelling index at 42ºN 10ºW. For chlorophyll and upwelling index the mean values of the last 7-days are also needed.
+- The mean overall uncertainty of the output is 15.2±1 µatm.
 - Executing the file "code_and_data_to_reproduce_ms.R" will display the figures contained in the associated manuscript. 
 
 
