@@ -167,25 +167,6 @@ $$
 If you use *f*CO₂GalicIA, please cite the article. You can also use the
 **"Cite this repository"** button on GitHub, which reads [`CITATION.cff`](CITATION.cff).
 
-```bibtex
-@article{Fontela_Padin_fCO2GalicIA,
-  author  = {Fontela, Marcos and Pad{\'i}n, Xos{\'e} Antonio},
-  title   = {Air--Sea {CO$_2$} Fluxes in the {NW} Iberian Upwelling System from
-             {fCO$_2$} observations and a machine-learning ensemble},
-  note    = {Under review},
-  year    = {2026}
-}
-
-@software{Fontela_fCO2GalicIA_software,
-  author  = {Fontela, Marcos and Pad{\'i}n, Xos{\'e} Antonio},
-  title   = {{fCO2GalicIA}: machine-learning ensemble for sea--air $\Delta$fCO$_2$
-             in the {NW} Iberian upwelling system},
-  version = {1.0.0},
-  year    = {2026},
-  url     = {https://github.com/mfontela/fCO2GalicIA}
-}
-```
-
 
 ## Frequently asked questions
 
