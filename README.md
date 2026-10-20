@@ -48,9 +48,9 @@ It is the ensemble described in Fontela & Padín (under review) and the model be
 |---|---|
 | **Domain** | NW Iberian Upwelling System, 41.5–43.0°N, 10.5–8.0°W (rías, shelf and ocean) |
 | **Output** | ΔfCO₂ (µatm) for each input row |
-| **Training data** | 40,387 surface *f*CO₂ observations (*f*CO₂IIM 1997–2014 + SOCAT v2023), 494 sampling days |
+| **Training data** | surface *f*CO₂ observations ([*f*CO₂IIM](http://hdl.handle.net/10261/447530) 1997–2014 + SOCAT v2023) |
 | **Valid years** | 1994–2021 (see `manifest.json`); the gridded product covers 1998–2021 |
-| **Ensemble** | Unweighted mean of Random Forest, SVR (RBF kernel) and XGBoost |
+| **Ensemble** | Unweighted mean of Random Forest, Support Vector Regresion and XGBoost |
 | **Skill (independent test set)** | RMSE 13.3 µatm · MAE 7.3 µatm · R² 0.89 |
 | **Total uncertainty** | 16.9 ± 1.5 µatm (about 53 % lower than global coastal products in this region) |
 | **Dependencies** | NumPy and pandas (matplotlib optional). No scikit-learn or XGBoost needed |
@@ -105,7 +105,6 @@ $$
 \widehat{\Delta f\mathrm{CO_2}} = \frac{1}{3}\left(\hat{y}_\mathrm{RF} + \hat{y}_\mathrm{SVR} + \hat{y}_\mathrm{XGB}\right)
 $$
 
-The week of the year is encoded cyclically as $\sin$ and $\cos$ of $2\pi\,(w - 0.5)/P$, where $P = 365.2425/7$.
 The models were trained with observation weights based on each measurement's quality class.
 They were validated with 10-fold cross-validation and evaluated on an independent 25 % test set.
 
@@ -115,13 +114,9 @@ Scores on the independent test set (25 % of observations, never used in training
 
 | Model | RMSE (µatm) | MAE (µatm) | R² |
 |---|---:|---:|---:|
-| Support Vector Regression | 20.7 | 10.9 | 0.72 |
-| XGBoost | 15.6 | 9.5 | 0.84 |
-| Random Forest | 8.0 | 3.8 | 0.96 |
 | **Ensemble (*f*CO₂GalicIA)** | **13.3** | **7.3** | **0.89** |
 
-Random Forest has the lowest test error on its own. The ensemble keeps SVR because SVR gives
-smoother fields, which limits overfitting in poorly sampled coastal areas.
+
 
 **Uncertainty budget.** The total uncertainty combines four independent terms in quadrature:
 
@@ -137,9 +132,6 @@ $$
 | $u_\mathrm{predictors}$ | 6.9 ± 3.1 | Monte Carlo propagation of SST, SSS, CHL and UI errors |
 | **Total** | **16.9 ± 1.5** | Range 15.6–20.1 across the domain |
 
-**Comparison with a global coastal product.** Against ULB-SOM-FFN-coastal v2 (Roobaert et al., 2024),
-mean absolute difference = 4.2 µatm and r = 0.94. The differences concentrate at the coast.
-71 % of the inner coastal domain resolved by *f*CO₂GalicIA is not covered by ULB.
 
 ## Input
 
@@ -161,27 +153,6 @@ mean absolute difference = 4.2 µatm and r = 0.94. The differences concentrate a
 > the domain and years after 2021. Treat such values with caution and check them against
 > independent observations. Rows with any missing input return NaN.
 
-### Getting the predictors
-
-The training predictors came from the
-[Copernicus Marine Service](https://marine.copernicus.eu/) and from the
-[IEO Upwelling Index](http://www.indicedeafloramiento.ieo.es). Using the same products
-keeps the inputs consistent with the training data. Example with the
-[`copernicusmarine`](https://pypi.org/project/copernicusmarine/) toolbox:
-
-```python
-import copernicusmarine as cm
-
-box = dict(minimum_longitude=-10.5, maximum_longitude=-8.0,
-           minimum_latitude=41.5,  maximum_latitude=43.0,
-           start_datetime="2010-01-01", end_datetime="2010-12-31")
-
-phy = cm.open_dataset(dataset_id="cmems_mod_ibi_phy_my_0.083deg-3D_P1D-m",
-                      variables=["thetao", "so"],
-                      minimum_depth=0, maximum_depth=1, **box)
-chl = cm.open_dataset(dataset_id="cmems_obs-oc_atl_bgc-plankton_my_l4-gapfree-multi-1km_P1D",
-                      variables=["CHL"], **box)
-```
 
 ## Related resources
 
@@ -215,8 +186,6 @@ If you use *f*CO₂GalicIA, please cite the article. You can also use the
 }
 ```
 
-Please also acknowledge the data sources behind the predictors: SOCAT, the Copernicus Marine
-Service, the IEO-CSIC Upwelling Index and NOAA GML.
 
 ## Frequently asked questions
 
