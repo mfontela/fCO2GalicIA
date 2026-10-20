@@ -87,7 +87,7 @@ source("examples/example_basic.R")
 
 ## How it works
 
-The target variable is the sea–air fugacity difference:
+The target variable is the air-sea fugacity difference:
 
 $$
 \Delta f\mathrm{CO_2} = f\mathrm{CO_{2,sw}} - f\mathrm{CO_{2,atm}}
@@ -114,7 +114,7 @@ Scores on the independent test set (25 % of observations, never used in training
 
 | Model | RMSE (µatm) | MAE (µatm) | R² |
 |---|---:|---:|---:|
-| **Ensemble (*f*CO₂GalicIA)** | **13.3** | **7.3** | **0.89** |
+| ***f*CO₂GalicIA** | **13.3** | **7.3** | **0.89** |
 
 
 
