@@ -164,7 +164,7 @@ $$
 
 ## Citation
 
-If you use *f*CO₂GalicIA, please cite the software:
+If you use *f*CO₂GalicIA, please cite the journal article (currently under review) and/or the software:
 
 > Fontela, M. (2026). *fCO2GalicIA: machine-learning ensemble for sea-air delta fCO2 in the
 > NW Iberian upwelling system* (Version 1.0.0) [Computer software].
