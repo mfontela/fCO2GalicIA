@@ -2,7 +2,7 @@
 
 # *f*CO₂GalicIA
 
-**A machine-learning ensemble for sea–air ΔfCO₂ in the NW Iberian Upwelling System**
+**A machine-learning ensemble for air-sea ΔfCO₂ in the NW Iberian Upwelling System**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python ≥ 3.10](https://img.shields.io/badge/python-%E2%89%A53.10-3776AB.svg?logo=python&logoColor=white)](pyproject.toml)
@@ -166,7 +166,7 @@ $$
 
 If you use *f*CO₂GalicIA, please cite the journal article (currently under review) and/or the software:
 
-> Fontela, M. (2026). *fCO2GalicIA: machine-learning ensemble for sea-air delta fCO2 in the
+> Fontela, M. (2026). *fCO2GalicIA: machine-learning ensemble for air-sea delta fCO2 in the
 > NW Iberian upwelling system* (Version 1.0.0) [Computer software].
 > https://github.com/mfontela/fCO2GalicIA
 
