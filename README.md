@@ -1,24 +1,71 @@
+<div align="center">
+
 # *f*CO₂GalicIA
 
-**Machine-Learning Ensemble for Air-Sea ΔfCO₂ Estimation in the NW Iberian Upwelling System**
+**A machine-learning ensemble for sea–air ΔfCO₂ in the NW Iberian Upwelling System**
 
-This model generates estimates of the sea–air difference in CO₂ fugacity
-(ΔfCO₂ = fCO₂,sw − fCO₂,atm, µatm) at the ocean surface of the NW Iberian upwelling system
-(41.5–43.0°N, 10.5–8.0°W) from user-supplied inputs of location, date, sea surface
-temperature, sea surface salinity, surface chlorophyll-a concentration, and the coastal
-Upwelling Index. A positive ΔfCO₂ indicates that the ocean is a CO₂ source to the
-atmosphere; a negative value indicates uptake.
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Python ≥ 3.10](https://img.shields.io/badge/python-%E2%89%A53.10-3776AB.svg?logo=python&logoColor=white)](pyproject.toml)
+[![R via reticulate](https://img.shields.io/badge/R-reticulate-276DC3.svg?logo=r&logoColor=white)](examples/example_basic.R)
+[![Paper: under review](https://img.shields.io/badge/paper-under%20review-orange.svg)](#citation)
+[![Gridded product: DIGITAL.CSIC](https://img.shields.io/badge/product-DIGITAL.CSIC-1f6feb.svg)](https://digital.csic.es/handle/10261/447565)
+<!-- After the first GitHub release is archived in Zenodo, add:
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)
+-->
 
-The model is the machine-learning ensemble described in:
+[Quick start](#quick-start) ·
+[How it works](#how-it-works) ·
+[Performance](#performance) ·
+[Input data](#input) ·
+[Citation](#citation)
 
-> Fontela, M., & Padín, X. A. (currently under review). Air–Sea CO₂ Fluxes in the NW Iberian
-> Upwelling System from fCO₂ observations and a machine-learning ensemble.
+</div>
 
-Model design and performance are documented in the article; please cite it when using the model.
+<p align="center">
+  <img src="docs/img/seasonal_climatology.png" width="900"
+       alt="Seasonal climatology of surface ΔpCO2 from fCO2GalicIA in the NW Iberian Upwelling System">
+</p>
 
-## How to use
+<p align="center"><sub>
+<b>Seasonal climatology of detrended surface ΔpCO₂ (µatm) from <i>f</i>CO₂GalicIA, 1998–2021.</b>
+Dots are the nodes of the 0.083° grid. Black and dashed grey lines are the 200 m and 70 m isobaths.
+Top row of Figure 5 in Fontela &amp; Padín (under review).
+</sub></p>
+
+*f*CO₂GalicIA estimates the sea–air difference in CO₂ fugacity at the ocean surface of the
+NW Iberian Upwelling System (41.5–43.0°N, 10.5–8.0°W). You give it location, date, sea surface
+temperature, salinity, chlorophyll-a and the coastal Upwelling Index; it returns ΔfCO₂ in µatm.
+It is the ensemble described in Fontela & Padín (under review) and the model behind the
+[weekly gridded product (1998–2021)](https://digital.csic.es/handle/10261/447565).
+
+> [!NOTE]
+> **Sign convention.** ΔfCO₂ = *f*CO₂,sw − *f*CO₂,atm. Positive values mean the ocean is a CO₂
+> **source** to the atmosphere; negative values mean the ocean is a CO₂ **sink**.
+
+## At a glance
+
+| | |
+|---|---|
+| **Domain** | NW Iberian Upwelling System, 41.5–43.0°N, 10.5–8.0°W (rías, shelf and ocean) |
+| **Output** | ΔfCO₂ (µatm) for each input row |
+| **Training data** | 40,387 surface *f*CO₂ observations (*f*CO₂IIM 1997–2014 + SOCAT v2023), 494 sampling days |
+| **Valid years** | 1994–2021 (see `manifest.json`); the gridded product covers 1998–2021 |
+| **Ensemble** | Unweighted mean of Random Forest, SVR (RBF kernel) and XGBoost |
+| **Skill (independent test set)** | RMSE 13.3 µatm · MAE 7.3 µatm · R² 0.89 |
+| **Total uncertainty** | 16.9 ± 1.5 µatm (about 53 % lower than global coastal products in this region) |
+| **Dependencies** | NumPy and pandas (matplotlib optional). No scikit-learn or XGBoost needed |
+
+## Quick start
 
 ```bash
+pip install git+https://github.com/mfontela/fCO2GalicIA.git
+```
+
+or clone the repository and run the example:
+
+```bash
+git clone https://github.com/mfontela/fCO2GalicIA.git
+cd fCO2GalicIA
 pip install -r requirements.txt
 python examples/example_basic.py
 ```
@@ -27,35 +74,198 @@ python examples/example_basic.py
 import pandas as pd
 import fco2galicia as fg
 
-model = fg.load_model()
-obs = pd.read_csv("examples/input_example.csv")   # predictors + date
-out = model.predict(obs)                          # adds deltafCO2 (µatm)
+model = fg.load_model()                            # verifies SHA-256 checksums
+obs = pd.read_csv("examples/input_example.csv")    # predictors + date
+out = model.predict(obs)                           # adds column deltafCO2 (µatm)
 ```
 
-From R, through reticulate: `source("examples/example_basic.R")`.
+From R, through [reticulate](https://rstudio.github.io/reticulate/):
+
+```r
+source("examples/example_basic.R")
+```
+
+## How it works
+
+The target variable is the sea–air fugacity difference:
+
+$$
+\Delta f\mathrm{CO_2} = f\mathrm{CO_{2,sw}} - f\mathrm{CO_{2,atm}}
+$$
+
+Each of the three models was trained on the same predictors:
+
+$$
+\Delta f\mathrm{CO_2} \sim \mathrm{SST} + \mathrm{SSS} + \mathrm{CHL} + \mathrm{CHL_7} + \mathrm{UI} + \mathrm{UI_7} + \mathrm{lat} + \mathrm{lon} + \mathrm{year} + \mathrm{week}
+$$
+
+The ensemble prediction is the unweighted mean of the three:
+
+$$
+\widehat{\Delta f\mathrm{CO_2}} = \frac{1}{3}\left(\hat{y}_\mathrm{RF} + \hat{y}_\mathrm{SVR} + \hat{y}_\mathrm{XGB}\right)
+$$
+
+The week of the year is encoded cyclically as $\sin$ and $\cos$ of $2\pi\,(w - 0.5)/P$, where $P = 365.2425/7$.
+The models were trained with observation weights based on each measurement's quality class.
+They were validated with 10-fold cross-validation and evaluated on an independent 25 % test set.
+
+## Performance
+
+Scores on the independent test set (25 % of observations, never used in training):
+
+| Model | RMSE (µatm) | MAE (µatm) | R² |
+|---|---:|---:|---:|
+| Support Vector Regression | 20.7 | 10.9 | 0.72 |
+| XGBoost | 15.6 | 9.5 | 0.84 |
+| Random Forest | 8.0 | 3.8 | 0.96 |
+| **Ensemble (*f*CO₂GalicIA)** | **13.3** | **7.3** | **0.89** |
+
+Random Forest has the lowest test error on its own. The ensemble keeps SVR because SVR gives
+smoother fields, which limits overfitting in poorly sampled coastal areas.
+
+**Uncertainty budget.** The total uncertainty combines four independent terms in quadrature:
+
+$$
+u_\mathrm{total} = \sqrt{u_\mathrm{obs}^2 + u_\mathrm{atm}^2 + u_\mathrm{model}^2 + u_\mathrm{predictors}^2}
+$$
+
+| Term | Value (µatm) | Origin |
+|---|---:|---|
+| $u_\mathrm{obs}$ | 7.7 | Weighted measurement uncertainty from the quality flags |
+| $u_\mathrm{atm}$ | 1.0 | Atmospheric reference (interpolation, pressure, water vapour) |
+| $u_\mathrm{model}$ | 13.3 | Ensemble RMSE on the test set |
+| $u_\mathrm{predictors}$ | 6.9 ± 3.1 | Monte Carlo propagation of SST, SSS, CHL and UI errors |
+| **Total** | **16.9 ± 1.5** | Range 15.6–20.1 across the domain |
+
+**Comparison with a global coastal product.** Against ULB-SOM-FFN-coastal v2 (Roobaert et al., 2024),
+mean absolute difference = 4.2 µatm and r = 0.94. The differences concentrate at the coast.
+71 % of the inner coastal domain resolved by *f*CO₂GalicIA is not covered by ULB.
 
 ## Input
 
-| Column | Units | Variable |
-|---|---|---|
-| `thetao` | °C | sea surface temperature |
-| `so` | dimensionless | sea surface salinity |
-| `CHL` | mg m⁻³ | surface chlorophyll-a |
-| `CHL_7` | mg m⁻³ | 7-day trailing median of `CHL` |
-| `UI` | m³ s⁻¹ km coastline⁻¹ | Upwelling Index at 42°N 10°W |
-| `UI_7` | m³ s⁻¹ km coastline⁻¹ | 7-day trailing median of `UI` |
-| `lat`, `lon` | °N, °E | position (longitude negative west) |
-| `date` | YYYY-MM-DD | year and ISO week are derived from it |
+| Column | Units | Variable | Source used in training |
+|---|---|---|---|
+| `thetao` | °C | Sea surface temperature | CMEMS IBI_MULTIYEAR_PHY_005_002 |
+| `so` | – | Sea surface salinity | CMEMS IBI_MULTIYEAR_PHY_005_002 |
+| `CHL` | mg m⁻³ | Surface chlorophyll-a | CMEMS OCEANCOLOUR_ATL_BGC_L4_MY_009_118 |
+| `CHL_7` | mg m⁻³ | 7-day trailing median of `CHL` | same as `CHL` |
+| `UI` | m³ s⁻¹ km⁻¹ | Upwelling Index at 42°N 10°W | [IEO-CSIC](http://www.indicedeafloramiento.ieo.es) |
+| `UI_7` | m³ s⁻¹ km⁻¹ | 7-day trailing median of `UI` | same as `UI` |
+| `lat`, `lon` | °N, °E | Position (longitude negative west) | – |
+| `date` | YYYY-MM-DD | Year and ISO week are derived from it | – |
 
-Rows with a missing input return NaN. Inputs outside the valid ranges listed in
-`model/fCO2GalicIA/manifest.json` raise an extrapolation warning.
+> [!WARNING]
+> **Extrapolation.** Inputs outside the valid ranges in
+> [`model/fCO2GalicIA/manifest.json`](model/fCO2GalicIA/manifest.json) still return a number,
+> but the package warns that the value is extrapolated. This includes positions outside
+> the domain and years after 2021. Treat such values with caution and check them against
+> independent observations. Rows with any missing input return NaN.
 
-## Repository structure
+### Getting the predictors
 
+The training predictors came from the
+[Copernicus Marine Service](https://marine.copernicus.eu/) and from the
+[IEO Upwelling Index](http://www.indicedeafloramiento.ieo.es). Using the same products
+keeps the inputs consistent with the training data. Example with the
+[`copernicusmarine`](https://pypi.org/project/copernicusmarine/) toolbox:
+
+```python
+import copernicusmarine as cm
+
+box = dict(minimum_longitude=-10.5, maximum_longitude=-8.0,
+           minimum_latitude=41.5,  maximum_latitude=43.0,
+           start_datetime="2010-01-01", end_datetime="2010-12-31")
+
+phy = cm.open_dataset(dataset_id="cmems_mod_ibi_phy_my_0.083deg-3D_P1D-m",
+                      variables=["thetao", "so"],
+                      minimum_depth=0, maximum_depth=1, **box)
+chl = cm.open_dataset(dataset_id="cmems_obs-oc_atl_bgc-plankton_my_l4-gapfree-multi-1km_P1D",
+                      variables=["CHL"], **box)
 ```
+
+## Related resources
+
+| Resource | Link |
+|---|---|
+| Weekly gridded ΔfCO₂, uncertainty and air–sea CO₂ flux, 1998–2021 (Fontela & Padín, 2026) | [DIGITAL.CSIC 10261/447565](https://digital.csic.es/handle/10261/447565) |
+| *f*CO₂IIM surface underway observations, 1997–2014 (Padín et al., 2026) | [DIGITAL.CSIC 10261/447530](https://digital.csic.es/handle/10261/447530) |
+| SOCAT, Surface Ocean CO₂ Atlas (Bakker et al., 2016) | [socat.info](https://socat.info) |
+
+## Citation
+
+If you use *f*CO₂GalicIA, please cite the article. You can also use the
+**"Cite this repository"** button on GitHub, which reads [`CITATION.cff`](CITATION.cff).
+
+```bibtex
+@article{Fontela_Padin_fCO2GalicIA,
+  author  = {Fontela, Marcos and Pad{\'i}n, Xos{\'e} Antonio},
+  title   = {Air--Sea {CO$_2$} Fluxes in the {NW} Iberian Upwelling System from
+             {fCO$_2$} observations and a machine-learning ensemble},
+  note    = {Under review},
+  year    = {2026}
+}
+
+@software{Fontela_fCO2GalicIA_software,
+  author  = {Fontela, Marcos and Pad{\'i}n, Xos{\'e} Antonio},
+  title   = {{fCO2GalicIA}: machine-learning ensemble for sea--air $\Delta$fCO$_2$
+             in the {NW} Iberian upwelling system},
+  version = {1.0.0},
+  year    = {2026},
+  url     = {https://github.com/mfontela/fCO2GalicIA}
+}
+```
+
+Please also acknowledge the data sources behind the predictors: SOCAT, the Copernicus Marine
+Service, the IEO-CSIC Upwelling Index and NOAA GML.
+
+## Frequently asked questions
+
+<details>
+<summary><b>Can I use the model outside the 41.5–43.0°N, 10.5–8.0°W domain?</b></summary>
+
+The model will return a number, but it is an extrapolation and the package warns about it.
+The same applies to any input outside the ranges in `manifest.json`, including years after 2021.
+Check such values against independent observations whenever possible.
+</details>
+
+<details>
+<summary><b>Why are 7-day medians needed for chlorophyll and UI?</b></summary>
+
+Biological carbon uptake and the carbonate system's response to upwelling pulses act over
+days to a week. Removing the 7-day predictors and the instantaneous ones together raised
+the test RMSE by 16 %. Keeping only one timescale raised it by 5–6 %.
+</details>
+
+<details>
+<summary><b>Can I use daily satellite images instead of weekly composites?</b></summary>
+
+Yes. The model does not depend on the temporal resolution of the inputs, as long as the
+units match the table above. `CHL_7` and `UI_7` must still be 7-day trailing medians of
+`CHL` and `UI`.
+</details>
+
+<details>
+<summary><b>How is the ensemble prediction computed?</b></summary>
+
+`deltafCO2` is the unweighted arithmetic mean of the Random Forest, SVR and XGBoost
+predictions. A row with any missing input returns NaN.
+</details>
+
+<details>
+<summary><b>Do I need scikit-learn, XGBoost or R to run it?</b></summary>
+
+No. The three models are stored as plain NumPy arrays (`.npz`) and evaluated with NumPy.
+The loader checks every file's SHA-256 checksum, and `model.self_test()` reproduces the
+reference predictions stored in `manifest.json`.
+</details>
+
+<details>
+<summary><b>Repository structure</b></summary>
+
+```text
 fCO2GalicIA/
 ├── README.md                     this file
-├── LICENSE.txt                   MIT licence
+├── LICENSE                       MIT licence
 ├── CITATION.cff                  citation metadata
 ├── pyproject.toml                package definition (pip install .)
 ├── requirements.txt              dependencies (numpy, pandas; matplotlib optional)
@@ -74,40 +284,25 @@ fCO2GalicIA/
 │   ├── input_example.csv         example input data
 │   ├── output_example.csv        example output (generated)
 │   └── output_example.png        example figure (generated)
+├── docs/img/                     figures used in this README
 └── tests/
     └── test_fco2galicia.py       pytest suite
 ```
 
-## Frequently asked questions
+</details>
 
-**Q. Can I use the model with data from outside the 41.5–43.0°N, 10.5–8.0°W domain?**  
-A. The model will return a numerical value, but it will constitute extrapolation, and the
-package issues a warning. The same applies to any input outside the valid ranges listed in
-`model/fCO2GalicIA/manifest.json`, including years after 2021. Results outside the training
-domain should be treated with caution and validated against independent observations
-whenever possible.
+## Acknowledgements
 
-**Q. Why are 7-day medians needed for chlorophyll and UI?**  
-A. Biological carbon uptake and the physical response of the carbonate system to
-upwelling pulses operate on timescales of days to a week. The lagged predictors
-(`CHL_7` and `UI_7`) were found to substantially improve model performance, particularly
-during transitional seasons.
+MF was funded by PTA2022-021307-I, MCIN/AEI/10.13039/501100011033 and by FSE+.
+The CAPTA project (0062_CAPTA_1_E) is co-financed by the European Union through the Interreg
+Spain–Portugal Cross-Border Cooperation Programme (POCTEP) 2021–2027. The REDEIRA project
+(TED2021-132188B-I00) also supported this work.
 
-**Q. Can I use instantaneous daily satellite images instead of weekly composites?**  
-A. Yes. The model is agnostic to the temporal resolution of the input data, as long
-as the units are consistent with those listed above. `CHL_7` and `UI_7` must still be
-7-day trailing medians of `CHL` and `UI`.
+## License and contact
 
-**Q. How is the ensemble prediction computed?**  
-A. `deltafCO2` is the unweighted arithmetic mean of the three individual model predictions
-(Random Forest, Support Vector Regression and XGBoost). A row with any missing input returns
-NaN.
+Released under the [MIT License](LICENSE).
 
-## License
+**Marcos Fontela** · [mfontela@iim.csic.es](mailto:mfontela@iim.csic.es) ·
+[ORCID 0000-0002-7486-0922](https://orcid.org/0000-0002-7486-0922)<br/>
 
-MIT ([LICENSE.txt](LICENSE.txt)).
-
-## Contact
-
-Marcos Fontela (mfontela@iim.csic.es)
 Instituto de Investigacións Mariñas (IIM-CSIC), Vigo, Spain.
