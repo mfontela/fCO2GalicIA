@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fco2galicia"
+version = "1.0.0"
+description = "Machine-learning ensemble for sea-air delta fCO2 in the NW Iberian upwelling system"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "Marcos Fontela", email = "mfontela@iim.csic.es"},
+           {name = "Xose Antonio Padín", email = "padin@iim.csic.es"}]
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24", "pandas>=2.0"]
+
+[project.optional-dependencies]
+figures = ["matplotlib>=3.7"]
+test = ["pytest"]
+
+[tool.setuptools]
+packages = ["fco2galicia"]

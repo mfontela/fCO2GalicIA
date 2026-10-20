@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this model, please cite the article below (currently under review)."
+title: "fCO2GalicIA: machine-learning ensemble for sea-air delta fCO2 in the NW Iberian upwelling system"
+version: "1.0.0"
+license: MIT
+repository-code: "https://github.com/mfontela/fCO2GalicIA"
+authors:
+  - family-names: Fontela
+    given-names: Marcos
+    email: mfontela@iim.csic.es
+    orcid: "https://orcid.org/0000-0002-7486-0922"
+    affiliation: "Instituto de Investigacions Marinas (IIM-CSIC)"
+  - family-names: Padín
+    given-names: Xosé Antonio
+    email: padin@iim.csic.es
+    orcid: "https://orcid.org/0000-0002-4277-3410"
+    affiliation: "Instituto de Investigacions Marinas (IIM-CSIC)"
+preferred-citation:
+  type: article
+  title: "Air-Sea CO2 Fluxes in the NW Iberian Upwelling System from fCO2 observations and a machine-learning ensemble"
+  authors:
+    - family-names: Fontela
+      given-names: Marcos
+    - family-names: Padín
+      given-names: Xosé Antonio
+  status: submitted
+  notes: "Currently under review"
