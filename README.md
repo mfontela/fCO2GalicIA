@@ -164,8 +164,14 @@ $$
 
 ## Citation
 
-If you use *f*CO₂GalicIA, please cite the article. You can also use the
-**"Cite this repository"** button on GitHub, which reads [`CITATION.cff`](CITATION.cff).
+If you use *f*CO₂GalicIA, please cite the software:
+
+> Fontela, M. (2026). *fCO2GalicIA: machine-learning ensemble for sea-air delta fCO2 in the
+> NW Iberian upwelling system* (Version 1.0.0) [Computer software].
+> https://github.com/mfontela/fCO2GalicIA
+
+The **"Cite this repository"** button on GitHub gives the same citation in APA and BibTeX
+formats, from [`CITATION.cff`](CITATION.cff).
 
 
 ## Frequently asked questions

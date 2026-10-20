@@ -1,7 +1,9 @@
 cff-version: 1.2.0
-message: "If you use this model, please cite the article below (currently under review)."
+message: "If you use this software, please cite it as below."
+type: software
 title: "fCO2GalicIA: machine-learning ensemble for sea-air delta fCO2 in the NW Iberian upwelling system"
 version: "1.0.0"
+date-released: "2026-10-19"
 license: MIT
 repository-code: "https://github.com/mfontela/fCO2GalicIA"
 authors:
@@ -10,18 +12,15 @@ authors:
     email: mfontela@iim.csic.es
     orcid: "https://orcid.org/0000-0002-7486-0922"
     affiliation: "Instituto de Investigacions Marinas (IIM-CSIC)"
-  - family-names: Padín
-    given-names: Xosé Antonio
-    email: padin@iim.csic.es
-    orcid: "https://orcid.org/0000-0002-4277-3410"
-    affiliation: "Instituto de Investigacions Marinas (IIM-CSIC)"
-preferred-citation:
-  type: article
-  title: "Air-Sea CO2 Fluxes in the NW Iberian Upwelling System from fCO2 observations and a machine-learning ensemble"
-  authors:
-    - family-names: Fontela
-      given-names: Marcos
-    - family-names: Padín
-      given-names: Xosé Antonio
-  status: submitted
-  notes: "Currently under review"
+abstract: >-
+  Machine-learning ensemble (Random Forest, Support Vector Regression and XGBoost)
+  that estimates the sea-air difference in CO2 fugacity (delta fCO2, uatm) at the
+  ocean surface of the NW Iberian upwelling system (41.5-43.0 N, 10.5-8.0 W) from
+  location, date, sea surface temperature, salinity, chlorophyll-a and the coastal
+  Upwelling Index.
+keywords:
+  - air-sea CO2 exchange
+  - fCO2
+  - upwelling
+  - machine learning
+  - NW Iberian upwelling system
