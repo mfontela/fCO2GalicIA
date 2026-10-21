@@ -29,10 +29,9 @@
 <p align="center"><sub>
 <b>Seasonal climatology of detrended surface ΔpCO₂ (µatm) from <i>f</i>CO₂GalicIA, 1998–2021.</b>
 Dots are the nodes of the 0.083° grid. Black and dashed grey lines are the 200 m and 70 m isobaths.
-Top row of Figure 5 in Fontela &amp; Padín (under review).
 </sub></p>
 
-*f*CO₂GalicIA estimates the sea–air difference in CO₂ fugacity at the ocean surface of the
+*f*CO₂GalicIA estimates the air-sea difference in CO₂ fugacity at the ocean surface of the
 NW Iberian Upwelling System (41.5–43.0°N, 10.5–8.0°W). You give it location, date, sea surface
 temperature, salinity, chlorophyll-a and the coastal Upwelling Index; it returns ΔfCO₂ in µatm.
 It is the ensemble described in Fontela & Padín (under review) and the model behind the
@@ -46,14 +45,13 @@ It is the ensemble described in Fontela & Padín (under review) and the model be
 
 | | |
 |---|---|
-| **Domain** | NW Iberian Upwelling System, 41.5–43.0°N, 10.5–8.0°W (rías, shelf and ocean) |
+| **Domain** | NW Iberian Upwelling System, 41.5–43.0°N, 10.5–8.0°W |
 | **Output** | ΔfCO₂ (µatm) for each input row |
 | **Training data** | surface *f*CO₂ observations ([*f*CO₂IIM](http://hdl.handle.net/10261/447530) 1997–2014 + SOCAT v2023) |
-| **Valid years** | 1994–2021 (see `manifest.json`); the gridded product covers 1998–2021 |
 | **Ensemble** | Unweighted mean of Random Forest, Support Vector Regresion and XGBoost |
 | **Skill (independent test set)** | RMSE 13.3 µatm · MAE 7.3 µatm · R² 0.89 |
-| **Total uncertainty** | 16.9 ± 1.5 µatm (about 53 % lower than global coastal products in this region) |
-| **Dependencies** | NumPy and pandas (matplotlib optional). No scikit-learn or XGBoost needed |
+| **Total uncertainty** | 16.9 ± 1.5 µatm |
+| **Dependencies** | NumPy and pandas (matplotlib optional) |
 
 ## Quick start
 
@@ -105,7 +103,7 @@ $$
 \widehat{\Delta f\mathrm{CO_2}} = \frac{1}{3}\left(\hat{y}_\mathrm{RF} + \hat{y}_\mathrm{SVR} + \hat{y}_\mathrm{XGB}\right)
 $$
 
-The models were trained with observation weights based on each measurement's quality class.
+The models were trained with observation weights based on each measurement's quality flag.
 They were validated with 10-fold cross-validation and evaluated on an independent 25 % test set.
 
 ## Performance
@@ -126,8 +124,8 @@ $$
 
 | Term | Value (µatm) | Origin |
 |---|---:|---|
-| $u_\mathrm{obs}$ | 7.7 | Weighted measurement uncertainty from the quality flags |
-| $u_\mathrm{atm}$ | 1.0 | Atmospheric reference (interpolation, pressure, water vapour) |
+| $u_\mathrm{obs}$ | 7.7 | Weighted measurement uncertainty from the observational quality flags |
+| $u_\mathrm{atm}$ | 1.0 | Atmospheric component uncertainty |
 | $u_\mathrm{model}$ | 13.3 | Ensemble RMSE on the test set |
 | $u_\mathrm{predictors}$ | 6.9 ± 3.1 | Monte Carlo propagation of SST, SSS, CHL and UI errors |
 | **Total** | **16.9 ± 1.5** | Range 15.6–20.1 across the domain |
@@ -158,9 +156,8 @@ $$
 
 | Resource | Link |
 |---|---|
-| Weekly gridded ΔfCO₂, uncertainty and air–sea CO₂ flux, 1998–2021 (Fontela & Padín, 2026) | [DIGITAL.CSIC 10261/447565](https://digital.csic.es/handle/10261/447565) |
+| Weekly gridded ΔfCO₂, uncertainty and air-sea CO₂ flux, 1998–2021 (Fontela & Padín, 2026) | [DIGITAL.CSIC 10261/447565](https://digital.csic.es/handle/10261/447565) |
 | *f*CO₂IIM surface underway observations, 1997–2014 (Padín et al., 2026) | [DIGITAL.CSIC 10261/447530](https://digital.csic.es/handle/10261/447530) |
-| SOCAT, Surface Ocean CO₂ Atlas (Bakker et al., 2016) | [socat.info](https://socat.info) |
 
 ## Citation
 
