@@ -9,9 +9,7 @@
 [![R via reticulate](https://img.shields.io/badge/R-reticulate-276DC3.svg?logo=r&logoColor=white)](examples/example_basic.R)
 [![Paper: under review](https://img.shields.io/badge/paper-under%20review-orange.svg)](#citation)
 [![Gridded product: DIGITAL.CSIC](https://img.shields.io/badge/product-DIGITAL.CSIC-1f6feb.svg)](https://digital.csic.es/handle/10261/447565)
-<!-- After the first GitHub release is archived in Zenodo, add:
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)
--->
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23618966.svg)](https://doi.org/10.5281/zenodo.23618966)
 
 [Quick start](#quick-start) ·
 [How it works](#how-it-works) ·
